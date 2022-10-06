@@ -9,6 +9,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(WordAdapter());
   await Hive.openBox(LocalWordStorage.storageName);
+  await Hive.openBox(LocalWordStorage.pointStorageName);
   runApp(const MyApp());
 }
 

@@ -12,20 +12,27 @@ class AlphabetsView extends StatelessWidget {
   Widget build(BuildContext context) {
     var items = _storage.listWordBanks();
     return Scaffold(
-        appBar: AppBar(title: const Text('Easy Alphabet')),
-        body: ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              return TappableListTileCard(
-                  child: Text(items[index]),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                AlphabetDashboard(items[index])));
-                  });
-            }));
+      appBar: AppBar(title: const Text('Easy Alphabet')),
+      body: ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            return TappableListTileCard(
+                child: Text(items[index]),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AlphabetDashboard(
+                                name: items[index],
+                                storage: _storage,
+                              )));
+                });
+          }),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {},
+      ),
+    );
   }
 }

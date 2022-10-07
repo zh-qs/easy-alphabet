@@ -1,12 +1,36 @@
+import 'package:easy_alphabet/quiz_view.dart';
+import 'package:easy_alphabet/storage/word_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class AlphabetDashboard extends StatelessWidget {
-  final String name;
-  final double _alphabetScore = 0.2137;
-  final double _practiceScore = 1;
+import 'model/points.dart';
 
-  const AlphabetDashboard(this.name, {super.key});
+class AlphabetDashboard extends StatefulWidget {
+  final String name;
+  final WordStorage storage;
+  const AlphabetDashboard(
+      {super.key, required this.name, required this.storage});
+
+  @override
+  State<AlphabetDashboard> createState() {
+    return _AlphabetDashboardState();
+  }
+}
+
+class _AlphabetDashboardState extends State<AlphabetDashboard> {
+  static const int _alphabetIndex = 0;
+  static const int _practiceIndex = 1;
+
+  double _alphabetScore = 0;
+  double _practiceScore = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    var points = widget.storage.getPoints(widget.name);
+    _alphabetScore = points.alphabetPercent;
+    _practiceScore = points.practicePercent;
+  }
 
   Color getProgressColor(double progress) {
     if (progress < 0.3) {
@@ -32,7 +56,7 @@ class AlphabetDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text(name),
+            title: Text(widget.name),
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back),
@@ -94,15 +118,38 @@ class AlphabetDashboard extends StatelessWidget {
               title: Row(children: [
             Expanded(
                 child: TextButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      startQuiz(context, widget.name, _alphabetIndex);
+                    },
                     icon: const Icon(Icons.abc),
                     label: const Text('Learn alphabet'))),
             Expanded(
                 child: TextButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      startQuiz(context, widget.name, _practiceIndex);
+                    },
                     icon: const Icon(Icons.question_answer),
                     label: const Text('Practice')))
           ])),
         ]));
+  }
+
+  void startQuiz(BuildContext context, String name, int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            QuizView(name: name, storage: widget.storage, index: index),
+      ),
+    ).then(
+      (value) {
+        setState(() {
+          if (value > _alphabetScore) {
+            _alphabetScore = value;
+            widget.storage.savePoints(name, Points(value, _practiceScore));
+          }
+        });
+      },
+    );
   }
 }

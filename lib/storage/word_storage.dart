@@ -5,35 +5,42 @@ import 'package:hive/hive.dart';
 
 abstract class WordStorage {
   List<String> listWordBanks();
-  List<Word> getWordBank(String name);
-  void addWordBank(String name, List<Word> contents);
+  List<Word> getWordBank(String name, int index);
+  void addWordBank(String name, List<Word> alphabet, List<Word> practice);
   void savePoints(String name, Points points);
   Points getPoints(String name);
 }
 
 class DummyWordStorage implements WordStorage {
-  Map<String, List<Word>> storage = {
-    'Cyryllic': [Word('pożałujsta', 'Пожалуйста'), Word('da', 'Да')]
+  Map<String, List<List<Word>>> storage = {
+    'Cyryllic': [
+      [Word('p', 'П'), Word('d', 'Д'), Word('zh', 'ж')],
+      [Word('pozhaluysta', 'Пожалуйста'), Word('da', 'Да')]
+    ],
   };
 
   Map<String, Points> pointsStorage = {'Cyryllic': Points(0.67, 0.32)};
 
   @override
-  void addWordBank(String name, List<Word> contents) {
+  void addWordBank(String name, List<Word> alphabet, List<Word> practice) {
     if (storage.containsKey(name)) {
       throw ArgumentError('Word Bank `$name` already exists');
     }
 
-    storage.putIfAbsent(name, () => contents);
+    storage.putIfAbsent(name, () => [alphabet, practice]);
   }
 
   @override
-  List<Word> getWordBank(String name) {
+  List<Word> getWordBank(String name, int index) {
     if (!storage.containsKey(name)) {
       throw ArgumentError('Word Bank `$name` doesn\'t exist');
     }
+    if (index != 0 && index != 1) {
+      throw ArgumentError(
+          'Available indexes are: 0 (alphabet) and 1 (practice), given: $index');
+    }
 
-    return storage[name]!;
+    return storage[name]![index];
   }
 
   @override
@@ -61,25 +68,29 @@ class LocalWordStorage implements WordStorage {
   static const pointStorageName = 'points';
 
   @override
-  void addWordBank(String name, List<Word> contents) {
+  void addWordBank(String name, List<Word> alphabet, List<Word> practice) {
     var box = Hive.box(storageName);
 
     if (box.containsKey(name)) {
       throw ArgumentError('Word Bank `$name` already exists');
     }
 
-    box.put(name, contents);
+    box.put(name, [alphabet, practice]);
   }
 
   @override
-  List<Word> getWordBank(String name) {
+  List<Word> getWordBank(String name, int index) {
     var box = Hive.box(storageName);
 
     if (!box.containsKey(name)) {
       throw ArgumentError('Word Bank `$name` doesn\'t exist');
     }
+    if (index != 0 && index != 1) {
+      throw ArgumentError(
+          'Available indexes are: 0 (alphabet) and 1 (practice), given: $index');
+    }
 
-    return box.get(name);
+    return box.get(name)[index];
   }
 
   @override

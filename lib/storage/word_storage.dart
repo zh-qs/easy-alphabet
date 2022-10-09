@@ -6,8 +6,10 @@ import 'package:hive/hive.dart';
 abstract class WordStorage {
   List<String> listWordBanks();
   List<Word> getWordBank(String name, int index);
+  bool isWordBankPresent(String name);
   void addWordBank(String name, List<Word> alphabet, List<Word> practice);
   void savePoints(String name, Points points);
+  void removeWordBank(String name);
   Points getPoints(String name);
 }
 
@@ -60,6 +62,16 @@ class DummyWordStorage implements WordStorage {
   @override
   void savePoints(String name, Points points) {
     pointsStorage[name] = points;
+  }
+
+  @override
+  bool isWordBankPresent(String name) {
+    return storage.containsKey(name);
+  }
+
+  @override
+  void removeWordBank(String name) {
+    storage.remove(name);
   }
 }
 
@@ -114,5 +126,15 @@ class LocalWordStorage implements WordStorage {
   void savePoints(String name, Points points) {
     var box = Hive.box(pointStorageName);
     box.put(name, points);
+  }
+
+  @override
+  bool isWordBankPresent(String name) {
+    return Hive.box(storageName).containsKey(name);
+  }
+
+  @override
+  void removeWordBank(String name) {
+    Hive.box(storageName).delete(name);
   }
 }

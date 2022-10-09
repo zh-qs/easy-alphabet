@@ -55,83 +55,114 @@ class _AlphabetDashboardState extends State<AlphabetDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: Text(widget.name),
-            leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back),
-            )),
-        body: ListView(padding: const EdgeInsets.all(8), children: [
-          ListTile(
-              title: Row(
-            children: [
-              Expanded(
-                child: CircularPercentIndicator(
-                  percent: _alphabetScore,
-                  header: const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'Alphabet score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+      appBar: AppBar(
+          title: Text(widget.name),
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back),
+          )),
+      body: ListView(padding: const EdgeInsets.all(8), children: [
+        ListTile(
+            title: Row(
+          children: [
+            Expanded(
+              child: CircularPercentIndicator(
+                percent: _alphabetScore,
+                header: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    'Alphabet score',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  center: Text(
-                    '${(_alphabetScore * 10000).roundToDouble() / 100}%',
-                    style: TextStyle(
+                ),
+                center: Text(
+                  '${(_alphabetScore * 10000).roundToDouble() / 100}%',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: getTextColor(_alphabetScore),
+                  ),
+                ),
+                animation: true,
+                radius: 100,
+                lineWidth: 10,
+                progressColor: getProgressColor(_alphabetScore),
+              ),
+            ),
+            Expanded(
+              child: CircularPercentIndicator(
+                percent: _practiceScore,
+                header: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    'Practice score',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                center: Text(
+                  '${(_practiceScore * 10000).roundToDouble() / 100}%',
+                  style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
-                      color: getTextColor(_alphabetScore),
-                    ),
-                  ),
-                  animation: true,
-                  radius: 100,
-                  lineWidth: 10,
-                  progressColor: getProgressColor(_alphabetScore),
+                      color: getTextColor(_practiceScore)),
                 ),
+                animation: true,
+                radius: 100,
+                lineWidth: 10,
+                progressColor: getProgressColor(_practiceScore),
               ),
-              Expanded(
-                child: CircularPercentIndicator(
-                  percent: _practiceScore,
-                  header: const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'Practice score',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  center: Text(
-                    '${(_practiceScore * 10000).roundToDouble() / 100}%',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: getTextColor(_practiceScore)),
-                  ),
-                  animation: true,
-                  radius: 100,
-                  lineWidth: 10,
-                  progressColor: getProgressColor(_practiceScore),
-                ),
-              ),
-            ],
-          )),
-          ListTile(
-              title: Row(children: [
-            Expanded(
-                child: TextButton.icon(
-                    onPressed: () {
-                      startQuiz(context, widget.name, _alphabetIndex);
-                    },
-                    icon: const Icon(Icons.abc),
-                    label: const Text('Learn alphabet'))),
-            Expanded(
-                child: TextButton.icon(
-                    onPressed: () {
-                      startQuiz(context, widget.name, _practiceIndex);
-                    },
-                    icon: const Icon(Icons.question_answer),
-                    label: const Text('Practice')))
-          ])),
-        ]));
+            ),
+          ],
+        )),
+        ListTile(
+            title: Row(children: [
+          Expanded(
+              child: TextButton.icon(
+                  onPressed: () {
+                    startQuiz(context, widget.name, _alphabetIndex);
+                  },
+                  icon: const Icon(Icons.abc),
+                  label: const Text('Learn alphabet'))),
+          Expanded(
+              child: TextButton.icon(
+                  onPressed: () {
+                    startQuiz(context, widget.name, _practiceIndex);
+                  },
+                  icon: const Icon(Icons.question_answer),
+                  label: const Text('Practice')))
+        ])),
+      ]),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                    title: const Text('Delete'),
+                    content: const Text(
+                        'Do you really want to remove this script? You will lose all your progress.'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  )).then(
+            (value) {
+              if (value != null && value) {
+                widget.storage.removeWordBank(widget.name);
+                Navigator.pop(context);
+              }
+            },
+          );
+        },
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.close),
+      ),
+    );
   }
 
   void startQuiz(BuildContext context, String name, int index) {

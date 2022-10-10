@@ -72,6 +72,7 @@ class DummyWordStorage implements WordStorage {
   @override
   void removeWordBank(String name) {
     storage.remove(name);
+    pointsStorage.remove(name);
   }
 }
 
@@ -102,7 +103,7 @@ class LocalWordStorage implements WordStorage {
           'Available indexes are: 0 (alphabet) and 1 (practice), given: $index');
     }
 
-    return box.get(name)[index];
+    return List<Word>.from(box.get(name)[index]);
   }
 
   @override
@@ -115,7 +116,7 @@ class LocalWordStorage implements WordStorage {
   Points getPoints(String name) {
     var box = Hive.box(pointStorageName);
 
-    if (box.containsKey(name)) {
+    if (!box.containsKey(name)) {
       throw ArgumentError('Record `$name` doesn\'t exist');
     }
 
@@ -136,5 +137,6 @@ class LocalWordStorage implements WordStorage {
   @override
   void removeWordBank(String name) {
     Hive.box(storageName).delete(name);
+    Hive.box(pointStorageName).delete(name);
   }
 }

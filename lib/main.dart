@@ -1,4 +1,5 @@
 import 'package:easy_alphabet/alphabets_view.dart';
+import 'package:easy_alphabet/model/points.dart';
 import 'package:easy_alphabet/model/word.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -8,6 +9,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(WordAdapter());
+  Hive.registerAdapter(PointsAdapter());
   await Hive.openBox(LocalWordStorage.storageName);
   await Hive.openBox(LocalWordStorage.pointStorageName);
   runApp(const MyApp());

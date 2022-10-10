@@ -14,7 +14,7 @@ class AlphabetsView extends StatefulWidget {
 }
 
 class _AlphabetsViewState extends State<AlphabetsView> {
-  final WordStorage _storage = DummyWordStorage();
+  final WordStorage _storage = LocalWordStorage();
 
   final List<String> items = [];
 
@@ -35,22 +35,25 @@ class _AlphabetsViewState extends State<AlphabetsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Easy Alphabet')),
-      body: ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            return TappableListTileCard(
-                child: Text(items[index]),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AlphabetDashboard(
-                                name: items[index],
-                                storage: _storage,
-                              )));
-                });
-          }),
+      body: items.isEmpty
+          ? const Center(child: Text('No items here. Try to add some!'))
+          : ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return TappableListTileCard(
+                    child: Text(items[index]),
+                    onTap: () {
+                      Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AlphabetDashboard(
+                                        name: items[index],
+                                        storage: _storage,
+                                      )))
+                          .then((_) => setWordBanks(_storage.listWordBanks()));
+                    });
+              }),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {

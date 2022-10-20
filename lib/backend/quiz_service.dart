@@ -3,6 +3,7 @@ import 'dart:math';
 import '../model/word.dart';
 
 class QuizService {
+  final QuizType quizType;
   final List<Word> questions;
   late List<int> _questionOrder;
   final List<int> _knownQuestions = [];
@@ -14,7 +15,7 @@ class QuizService {
 
   int _currentIndex = -1;
 
-  QuizService(this.questions) {
+  QuizService(this.questions, this.quizType) {
     _questionOrder = List<int>.generate(questions.length, (index) => index);
     _questionOrder.shuffle();
     _maybeKnownQuestions = List.of(_questionOrder);
@@ -35,7 +36,8 @@ class QuizService {
     }
     bool isCorrect = false;
     // good answer
-    if (questions[_currentIndex].latin.toLowerCase() == answer.toLowerCase()) {
+    if (questions[_currentIndex].answer(quizType).toLowerCase() ==
+        answer.toLowerCase()) {
       if (!_knownQuestions.contains(_currentIndex)) {
         if (_unknownQuestions.remove(_currentIndex)) {
           _maybeKnownQuestions.add(_currentIndex);

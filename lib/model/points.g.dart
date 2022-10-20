@@ -19,17 +19,23 @@ class PointsAdapter extends TypeAdapter<Points> {
     return Points(
       fields[0] as double,
       fields[1] as double,
+      fields[2] as double,
+      fields[3] as double,
     );
   }
 
   @override
   void write(BinaryWriter writer, Points obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.alphabetPercent)
+      ..write(obj.alphabetReadPercent)
       ..writeByte(1)
-      ..write(obj.practicePercent);
+      ..write(obj.practiceReadPercent)
+      ..writeByte(2)
+      ..write(obj.alphabetWritePercent)
+      ..writeByte(3)
+      ..write(obj.practiceWritePercent);
   }
 
   @override

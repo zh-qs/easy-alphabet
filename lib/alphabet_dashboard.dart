@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:easy_alphabet/model/word.dart';
 import 'package:easy_alphabet/quiz_view.dart';
 import 'package:easy_alphabet/storage/word_storage.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +24,21 @@ class _AlphabetDashboardState extends State<AlphabetDashboard> {
   static const int _alphabetIndex = 0;
   static const int _practiceIndex = 1;
 
+  Points _points = Points.empty;
+
   double _alphabetScore = 0;
   double _practiceScore = 0;
+
+  void _updateAveragePoints() {
+    _alphabetScore = _points.getAverageAlphabetPercent();
+    _practiceScore = _points.getAveragePracticePercent();
+  }
 
   @override
   void initState() {
     super.initState();
-    var points = widget.storage.getPoints(widget.name);
-    _alphabetScore = points.alphabetPercent;
-    _practiceScore = points.practicePercent;
+    _points = widget.storage.getPoints(widget.name);
+    _updateAveragePoints();
   }
 
   Color getProgressColor(double progress) {
@@ -119,17 +128,38 @@ class _AlphabetDashboardState extends State<AlphabetDashboard> {
           Expanded(
               child: TextButton.icon(
                   onPressed: () {
-                    startQuiz(context, widget.name, _alphabetIndex);
+                    startQuiz(context, widget.name, _alphabetIndex,
+                        QuizType.foreignToLatin);
                   },
                   icon: const Icon(Icons.abc),
-                  label: const Text('Learn alphabet'))),
+                  label: const Text('Learn reading'))),
           Expanded(
               child: TextButton.icon(
                   onPressed: () {
-                    startQuiz(context, widget.name, _practiceIndex);
+                    startQuiz(context, widget.name, _practiceIndex,
+                        QuizType.foreignToLatin);
                   },
                   icon: const Icon(Icons.question_answer),
-                  label: const Text('Practice')))
+                  label: const Text('Practice reading')))
+        ])),
+        ListTile(
+            title: Row(children: [
+          Expanded(
+              child: TextButton.icon(
+                  onPressed: () {
+                    startQuiz(context, widget.name, _alphabetIndex,
+                        QuizType.latinToForeign);
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Learn writing'))),
+          Expanded(
+              child: TextButton.icon(
+                  onPressed: () {
+                    startQuiz(context, widget.name, _practiceIndex,
+                        QuizType.latinToForeign);
+                  },
+                  icon: const Icon(Icons.notes),
+                  label: const Text('Practice writing')))
         ])),
       ]),
       floatingActionButton: FloatingActionButton(
@@ -165,22 +195,51 @@ class _AlphabetDashboardState extends State<AlphabetDashboard> {
     );
   }
 
-  void startQuiz(BuildContext context, String name, int index) {
+  void startQuiz(BuildContext context, String name, int index, QuizType type) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            QuizView(name: name, storage: widget.storage, index: index),
+        builder: (context) => QuizView(
+          name: name,
+          storage: widget.storage,
+          index: index,
+          quizType: type,
+        ),
       ),
     ).then(
       (value) {
         setState(() {
-          if (value > _alphabetScore) {
-            _alphabetScore = value;
-            widget.storage.savePoints(name, Points(value, _practiceScore));
+          Points updated =
+              _points.modified((p) => updatePoints(p, value, index, type));
+
+          if (updated.getAverageAlphabetPercent() >
+                  _points.getAverageAlphabetPercent() ||
+              updated.getAveragePracticePercent() >
+                  _points.getAveragePracticePercent()) {
+            _points = updated;
+            _updateAveragePoints();
+            widget.storage.savePoints(name, updated);
           }
         });
       },
     );
+  }
+
+  void updatePoints(Points p, double value, int index, QuizType type) {
+    switch (type) {
+      case QuizType.foreignToLatin:
+        if (index == 0) {
+          p.alphabetReadPercent = value;
+        } else {
+          p.practiceReadPercent = value;
+        }
+        break;
+      case QuizType.latinToForeign:
+        if (index == 0) {
+          p.alphabetWritePercent = value;
+        } else {
+          p.practiceWritePercent = value;
+        }
+    }
   }
 }

@@ -23,7 +23,9 @@ class DummyWordStorage implements WordStorage {
     ],
   };
 
-  Map<String, Points> pointsStorage = {'Cyryllic': Points(0.67, 0.32)};
+  Map<String, Points> pointsStorage = {
+    'Cyryllic': Points(0.67, 0.32, 0.5, 0.44)
+  };
 
   @override
   void addWordBank(String name, List<Word> alphabet, List<Word> practice) {

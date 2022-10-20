@@ -80,7 +80,7 @@ class _WebAlphabetsViewState extends State<WebAlphabetsView> {
                             widget.storage
                               ..addWordBank(
                                   _links[index].name, value[0], value[1])
-                              ..savePoints(_links[index].name, Points(0, 0));
+                              ..savePoints(_links[index].name, Points.empty);
                             Navigator.pop(context);
                             Navigator.pop(context);
                           });

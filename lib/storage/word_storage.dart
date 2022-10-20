@@ -11,6 +11,8 @@ abstract class WordStorage {
   void savePoints(String name, Points points);
   void removeWordBank(String name);
   Points getPoints(String name);
+
+  static WordStorage create() => LocalWordStorage();
 }
 
 class DummyWordStorage implements WordStorage {

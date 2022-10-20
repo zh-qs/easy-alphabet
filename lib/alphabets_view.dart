@@ -14,7 +14,7 @@ class AlphabetsView extends StatefulWidget {
 }
 
 class _AlphabetsViewState extends State<AlphabetsView> {
-  final WordStorage _storage = LocalWordStorage();
+  final WordStorage _storage = WordStorage.create();
 
   final List<String> items = [];
 
